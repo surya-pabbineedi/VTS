@@ -1,0 +1,24 @@
+﻿<dom-module id="appointment-component">
+    <template>
+        <h1> {{appointment.name}}</h1>
+        <button type="button" on-tap="fireEvent"> FIRE! </button>
+    </template>
+    <script>
+        Polymer({
+            is: 'appointment-component',
+            properties: {
+                appointment: {
+                    type: Object,
+                    value: {}
+                }
+            },
+            ready: function () {
+                console.log("appointment-component is ready!");
+            },
+            fireEvent: function () {
+                this.fire('kick', { kicked: true });
+            }
+        })
+
+    </script>
+</dom-module>

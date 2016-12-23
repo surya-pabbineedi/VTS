@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/paper-material/paper-material.html">
+    <link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+    <!--<link rel="import" href="bower_components/paper-progress/paper-progress.html">-->
+    <link rel="import" href="bower_components/paper-menu/paper-menu.html">
+    <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
+    <link rel="import" href="bower_components/iron-icon/iron-icon.html">
+    <link rel="import" href="bower_components/paper-card/paper-card.html">
+    <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+    <link rel="import" href="bower_components/paper-input/paper-input.html">
+    <link rel="import" href="bower_components/paper-input/paper-textarea.html">
+    <link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
+    <link rel="import" href="bower_components/paper-listbox/paper-listbox.html">
+    <link rel="import" href="bower_components/paper-item/paper-item.html">
+    <link rel="import" href="bower_components/paper-datatable/paper-datatable-card.html">
+    <link rel="import" href="bower_components/paper-date-picker/paper-date-picker.html">
+    <link rel="import" href="bower_components/paper-datatable/paper-datatable.html">
+    <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+    <link rel="import" href="shared-components/appointment.html" />
+</head>
+<body>
+    <style>
+        #Dialog {
+            width: 60%;
+            padding-bottom: 30px;
+            padding-top: 30px;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        paper-dropdown-menu {
+            display: block !important;
+        }
+    </style>
+    <data-list></data-list>
+    <dom-module id="data-list">
+        <template>
+            <paper-card heading="Just a normal data table">
+                <paper-datatable-card id="datatableCard" header="Users" page-size="10" data-source="{{data}}" id-property="id" selected-ids="{{selectedIds}}">
+                    <div toolbar-main>
+                        <paper-input value="{{searchTerm}}" on-input="retrieveResults" label="Search..." style="display:inline-block" no-label-float>
+                            <div prefix>
+                                <iron-icon icon="search"></iron-icon>
+                            </div>
+                        </paper-input>
+                        <paper-icon-button icon="cached" on-tap="retrieveResults"></paper-icon-button>
+                    </div>
+                    <div toolbar-select>
+                        <paper-icon-button icon="delete" on-tap="deleteSelected"></paper-icon-button>
+                    </div>
+                    <div toolbar-select-single>
+                        <paper-icon-button icon="datatable:editable" on-tap="editDialogForSelected"></paper-icon-button>
+                    </div>
+                    <paper-datatable id="dtable" data="{{data}}" selectable multi-selection selected-items="{{selectedItems}}">
+                        <paper-datatable-column header="ID" property="Id" type="Number" align="left" style="width:99%;"></paper-datatable-column>
+                        <paper-datatable-column header="Name" property="name" type="String" align="left" tooltip="Visitor name"></paper-datatable-column>
+                        <paper-datatable-column header="To Meet" property="toMeet" type="String" align="left" tooltip="Associate name"></paper-datatable-column>
+                        <paper-datatable-column header="Date Of Appoinment" property="dateOfAppointment" type="Date" align="left" tooltip="Time to meet associate"></paper-datatable-column>
+                        <paper-datatable-column header="Status" property="status" type="String" align="left" tooltip="Status of appointment"></paper-datatable-column>
+                        <paper-datatable-column header="Edit">
+                            <template>
+                                <paper-icon-button icon="icons:create" on-tap="edit"></paper-icon-button>
+                            </template>
+                        </paper-datatable-column>
+                        <paper-datatable-column header="Delete">
+                            <template>
+                                <paper-icon-button icon="icons:delete"></paper-icon-button>
+                            </template>
+                        </paper-datatable-column>
+
+                    </paper-datatable>
+                </paper-datatable-card>
+            </paper-card>
+            <paper-icon-button icon="icons:add" style="float:right" onclick="Dialog.open()"></paper-icon-button>
+            <paper-dialog id="Dialog">
+                <paper-dialog-scrollable>
+                    <paper-dropdown-menu label="Type Of Visitor" style="width:100%;">
+                        <paper-listbox class="dropdown-content" style="width:100%;">
+                            <paper-item>Vendor</paper-item>
+                            <paper-item>Visitor</paper-item>
+                            <paper-item>Interview</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <paper-input label="Visitor Name:" style="width:100%;"></paper-input>
+                    <paper-input label="Company Name:" style="width:100%;"></paper-input>
+                    <paper-dropdown-menu label="Whome to Meet" style="width:100%;">
+                        <paper-listbox class="dropdown-content" style="width:100%;">
+                            <paper-item>Sunitha</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <paper-input label="Appointment Time:"></paper-input>
+                    <paper-textarea label="Instructions:"></paper-textarea>
+                </paper-dialog-scrollable>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancel</paper-button>
+                    <paper-button dialog-confirm autofocus on-tap="add">Add</paper-button>
+                </div>
+            </paper-dialog>
+
+            <hr/>
+            <appointment-component appointment="{{selectedItem}}"></appointment-component>
+        </template>
+    </dom-module>
+    <script>
+        Polymer({
+            is: "data-list",
+            properties: {
+                data: {
+                    type: Array,
+                    value: [
+        		{ id: 0, Id: '1', name: "Sunitha", toMeet: "Prathyusha", dateOfAppointment: new Date(), status: "Active", edit: "Edit", cancel: "Cancel" },
+        		{ id: 1, Id: '2', name: "Sushmitha", toMeet: "Phani", dateOfAppointment: new Date(), status: "Closed", edit: "Edit", cancel: "Cancel" },
+        		{ id: 2, Id: '3', name: "Sruthi", toMeet: "Sunitha", dateOfAppointment: new Date(), status: "Open", edit: "Edit", cancel: "Cancel" },
+        		{ id: 3, Id: '4', name: "Sudha", toMeet: "Rohit", dateOfAppointment: new Date(), status: "Active", edit: "Edit", cancel: "Cancel" },
+        		{ id: 4, Id: '5', name: "Prabandha", toMeet: "Sushmitha", dateOfAppointment: new Date(), status: "Open", edit: "Edit", cancel: "Cancel" },
+        		{ id: 5, Id: '6', name: "Anjali", toMeet: "Ravali", dateOfAppointment: new Date(), status: "Closed", edit: "Edit", cancel: "Cancel" }
+                    ]
+                },
+                selectedItems: {
+                    type: Object
+                },
+                selectedItem: {
+                    type: Object,
+                    value: {}
+                }
+            },
+            toFixedOne: function (value) {
+                return value.toFixed(1);
+            },
+            toPercentage: function (value) {
+                return Math.round(value * 10000) / 100 + '%';
+            },
+            editDialogForSelected: function () {
+                this.$.editDialog.opened = true;
+            },
+            //deleteSelected: function () {
+            //    app.selectedIds.forEach((id) {
+            //        var index = users.findIndex((item) => id == item.id);
+            //        users.splice(index, 1);
+            //    });
+            //    this.$.datatableCard.retrieveVisibleData();
+            //    this.$.datatableCard.deselectAll();
+            //    saveToLocalStorage();
+            //},
+            rowTapped: function (ev) {
+                console.log(ev.detail.item);
+                //if (data.isDebouncerActive('dblclick' + ev.detail.item.id)) {
+                //    data.$.datatableCard.deselectAll();
+                //    data.$.datatableCard.select(ev.detail.item.id);
+                //    data.editDialogForSelected();
+                //    ev.preventDefault();
+                //    data.cancelDebouncer('dblclick');
+                //} else {
+                //    data.debounce('dblclick' + ev.detail.item.id, function () { }, 300);
+                //}
+            },
+            retrieveResults: function (ev) {
+                data.$.datatableCard.retrieveVisibleData();
+            },
+            add: function () {
+                this.push('data', { id: 0, Id: '1', name: "PK", toMeet: "Surya", dateOfAppointment: new Date(), status: "Open", edit: "Edit", cancel: "Cancel" })
+            },
+            edit: function (oEvent) {
+                console.log(oEvent.model.get('item'));
+                this.selectedItem = oEvent.model.get('item');
+            },
+            ready: function () {
+                document.querySelector('appointment-component').addEventListener('kick', function (e) {
+                    console.log(e.detail.kicked); // true
+                });
+            }
+        });
+    </script>
+</body>
+</html>
